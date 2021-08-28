@@ -100,6 +100,7 @@ namespace DataverseFormatChangerTool
                         {
                             var metadataCache = ConnectionDetail.MetadataCacheLoader.ConfigureAwait(false).GetAwaiter().GetResult();
                             args.Result = metadataCache.EntityMetadata;
+                            return;
                         }
                         catch
                         {
