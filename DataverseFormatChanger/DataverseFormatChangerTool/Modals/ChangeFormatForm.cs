@@ -25,11 +25,6 @@ namespace DataverseFormatChangerTool.Modals
             this.currentLabel.Text = $"Current datatype: {this.Row.ColumnType}";
         }
 
-        private void cancelButton_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
         private void okayButton_Click(object sender, EventArgs e)
         {
             if (formatTypeChoice.SelectedItem != null)
@@ -46,8 +41,6 @@ namespace DataverseFormatChangerTool.Modals
                     TargetMetadata = updatedMetadata
                 });
             }
-
-            this.Close();
         }
     }
 }

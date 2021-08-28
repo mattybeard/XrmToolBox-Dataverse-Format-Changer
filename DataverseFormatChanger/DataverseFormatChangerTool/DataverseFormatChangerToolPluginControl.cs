@@ -161,11 +161,14 @@ namespace DataverseFormatChangerTool
                 return;
 
             var row = columnDataGridView.Rows[e.RowIndex].DataBoundItem as ColumnMetadataGridViewItem;
-            var changeFormatForm = new ChangeFormatForm(changeRequests, row);
-            changeFormatForm.ShowDialog();
 
-
-            currentQueuedRequests.Lines = changeRequests.Select(c => c.DisplayRequest()).ToArray();
+            using (var changeFormatForm = new ChangeFormatForm(changeRequests, row))
+            {
+                if (changeFormatForm.ShowDialog(this) == DialogResult.OK)
+                {
+                    currentQueuedRequests.Lines = changeRequests.Select(c => c.DisplayRequest()).ToArray();
+                }
+            }
         }
 
         private void processButton_Click(object sender, EventArgs e)
