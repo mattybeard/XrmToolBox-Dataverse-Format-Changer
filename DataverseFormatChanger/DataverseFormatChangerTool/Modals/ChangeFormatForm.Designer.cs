@@ -38,6 +38,9 @@ namespace DataverseFormatChangerTool.Modals
             // 
             // formatTypeChoice
             // 
+            this.formatTypeChoice.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.formatTypeChoice.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.formatTypeChoice.FormattingEnabled = true;
             this.formatTypeChoice.Items.AddRange(new object[] {
             "Text",
@@ -48,13 +51,13 @@ namespace DataverseFormatChangerTool.Modals
             "Phone"});
             this.formatTypeChoice.Location = new System.Drawing.Point(12, 48);
             this.formatTypeChoice.Name = "formatTypeChoice";
-            this.formatTypeChoice.Size = new System.Drawing.Size(372, 21);
+            this.formatTypeChoice.Size = new System.Drawing.Size(231, 21);
             this.formatTypeChoice.TabIndex = 4;
             // 
             // currentLabel
             // 
             this.currentLabel.AutoSize = true;
-            this.currentLabel.Location = new System.Drawing.Point(138, 9);
+            this.currentLabel.Location = new System.Drawing.Point(12, 9);
             this.currentLabel.Name = "currentLabel";
             this.currentLabel.Size = new System.Drawing.Size(114, 13);
             this.currentLabel.TabIndex = 3;
@@ -63,7 +66,7 @@ namespace DataverseFormatChangerTool.Modals
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(113, 32);
+            this.label1.Location = new System.Drawing.Point(12, 32);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(172, 13);
             this.label1.TabIndex = 5;
@@ -71,35 +74,44 @@ namespace DataverseFormatChangerTool.Modals
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(229, 75);
+            this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.cancelButton.Location = new System.Drawing.Point(168, 77);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 6;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
-            this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
             // 
             // okayButton
             // 
-            this.okayButton.Location = new System.Drawing.Point(116, 75);
+            this.okayButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.okayButton.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.okayButton.Location = new System.Drawing.Point(87, 77);
             this.okayButton.Name = "okayButton";
             this.okayButton.Size = new System.Drawing.Size(75, 23);
             this.okayButton.TabIndex = 7;
-            this.okayButton.Text = "Submit";
+            this.okayButton.Text = "OK";
             this.okayButton.UseVisualStyleBackColor = true;
             this.okayButton.Click += new System.EventHandler(this.okayButton_Click);
             // 
             // ChangeFormatForm
             // 
+            this.AcceptButton = this.okayButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(396, 123);
+            this.CancelButton = this.cancelButton;
+            this.ClientSize = new System.Drawing.Size(255, 112);
             this.Controls.Add(this.formatTypeChoice);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.currentLabel);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.okayButton);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "ChangeFormatForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Changing X Datatype";
             this.ResumeLayout(false);
             this.PerformLayout();

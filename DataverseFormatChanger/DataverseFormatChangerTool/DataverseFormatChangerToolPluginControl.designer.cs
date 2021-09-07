@@ -51,59 +51,66 @@ namespace DataverseFormatChangerTool
             // 
             // tableSelectionComboBox
             // 
+            this.tableSelectionComboBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableSelectionComboBox.FormattingEnabled = true;
-            this.tableSelectionComboBox.Location = new System.Drawing.Point(6, 19);
+            this.tableSelectionComboBox.Location = new System.Drawing.Point(8, 21);
             this.tableSelectionComboBox.Name = "tableSelectionComboBox";
-            this.tableSelectionComboBox.Size = new System.Drawing.Size(720, 21);
+            this.tableSelectionComboBox.Size = new System.Drawing.Size(728, 21);
             this.tableSelectionComboBox.TabIndex = 5;
             this.tableSelectionComboBox.SelectedIndexChanged += new System.EventHandler(this.tableSelectionComboBox_SelectedIndexChanged);
             // 
             // loadTableMetadataGroup
             // 
             this.loadTableMetadataGroup.Controls.Add(this.tableSelectionComboBox);
-            this.loadTableMetadataGroup.Location = new System.Drawing.Point(9, 3);
+            this.loadTableMetadataGroup.Dock = System.Windows.Forms.DockStyle.Top;
+            this.loadTableMetadataGroup.Location = new System.Drawing.Point(0, 0);
             this.loadTableMetadataGroup.Name = "loadTableMetadataGroup";
-            this.loadTableMetadataGroup.Size = new System.Drawing.Size(732, 51);
+            this.loadTableMetadataGroup.Padding = new System.Windows.Forms.Padding(8);
+            this.loadTableMetadataGroup.Size = new System.Drawing.Size(744, 51);
             this.loadTableMetadataGroup.TabIndex = 6;
             this.loadTableMetadataGroup.TabStop = false;
-            this.loadTableMetadataGroup.Text = "Load Table Metadata";
+            this.loadTableMetadataGroup.Text = "Table";
             // 
             // loadColumnMetadataGroup
             // 
             this.loadColumnMetadataGroup.Controls.Add(this.columnDataGridView);
-            this.loadColumnMetadataGroup.Location = new System.Drawing.Point(9, 60);
+            this.loadColumnMetadataGroup.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.loadColumnMetadataGroup.Location = new System.Drawing.Point(0, 51);
             this.loadColumnMetadataGroup.Name = "loadColumnMetadataGroup";
-            this.loadColumnMetadataGroup.Size = new System.Drawing.Size(732, 465);
+            this.loadColumnMetadataGroup.Padding = new System.Windows.Forms.Padding(8);
+            this.loadColumnMetadataGroup.Size = new System.Drawing.Size(744, 512);
             this.loadColumnMetadataGroup.TabIndex = 7;
             this.loadColumnMetadataGroup.TabStop = false;
-            this.loadColumnMetadataGroup.Text = "Load Column Metadata";
+            this.loadColumnMetadataGroup.Text = "Columns";
             // 
             // columnDataGridView
             // 
             this.columnDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.columnDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.columnDataGridView.Location = new System.Drawing.Point(3, 16);
+            this.columnDataGridView.Location = new System.Drawing.Point(8, 21);
             this.columnDataGridView.Name = "columnDataGridView";
-            this.columnDataGridView.Size = new System.Drawing.Size(726, 446);
+            this.columnDataGridView.Size = new System.Drawing.Size(728, 483);
             this.columnDataGridView.TabIndex = 0;
             this.columnDataGridView.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.columnDataGridView_CellDoubleClick);
             // 
             // queuedRequestsGroup
             // 
             this.queuedRequestsGroup.Controls.Add(this.currentQueuedRequests);
-            this.queuedRequestsGroup.Location = new System.Drawing.Point(3, 28);
+            this.queuedRequestsGroup.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.queuedRequestsGroup.Location = new System.Drawing.Point(0, 0);
             this.queuedRequestsGroup.Name = "queuedRequestsGroup";
-            this.queuedRequestsGroup.Size = new System.Drawing.Size(455, 266);
+            this.queuedRequestsGroup.Padding = new System.Windows.Forms.Padding(8);
+            this.queuedRequestsGroup.Size = new System.Drawing.Size(495, 502);
             this.queuedRequestsGroup.TabIndex = 8;
             this.queuedRequestsGroup.TabStop = false;
-            this.queuedRequestsGroup.Text = "Current Queued Requests";
+            this.queuedRequestsGroup.Text = "Pending Changes";
             // 
             // currentQueuedRequests
             // 
             this.currentQueuedRequests.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.currentQueuedRequests.Location = new System.Drawing.Point(3, 16);
+            this.currentQueuedRequests.Location = new System.Drawing.Point(8, 21);
             this.currentQueuedRequests.Name = "currentQueuedRequests";
-            this.currentQueuedRequests.Size = new System.Drawing.Size(449, 247);
+            this.currentQueuedRequests.Size = new System.Drawing.Size(479, 473);
             this.currentQueuedRequests.TabIndex = 0;
             this.currentQueuedRequests.Text = "";
             // 
@@ -114,11 +121,12 @@ namespace DataverseFormatChangerTool
             // 
             // processButton
             // 
-            this.processButton.Location = new System.Drawing.Point(6, 297);
+            this.processButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.processButton.Location = new System.Drawing.Point(0, 502);
             this.processButton.Name = "processButton";
-            this.processButton.Size = new System.Drawing.Size(452, 61);
+            this.processButton.Size = new System.Drawing.Size(495, 61);
             this.processButton.TabIndex = 10;
-            this.processButton.Text = "Process Queued Requests";
+            this.processButton.Text = "Process Changes";
             this.processButton.UseVisualStyleBackColor = true;
             this.processButton.Click += new System.EventHandler(this.processButton_Click);
             // 
@@ -130,8 +138,8 @@ namespace DataverseFormatChangerTool
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.loadTableMetadataGroup);
             this.splitContainer1.Panel1.Controls.Add(this.loadColumnMetadataGroup);
+            this.splitContainer1.Panel1.Controls.Add(this.loadTableMetadataGroup);
             this.splitContainer1.Panel1MinSize = 50;
             // 
             // splitContainer1.Panel2
