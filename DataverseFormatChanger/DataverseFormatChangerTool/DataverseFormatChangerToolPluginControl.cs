@@ -4,6 +4,7 @@ using McTools.Xrm.Connection;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
+using Microsoft.Xrm.Sdk.Metadata.Query;
 using Microsoft.Xrm.Sdk.Query;
 using System;
 using System.Collections.Generic;
@@ -52,22 +53,72 @@ namespace DataverseFormatChangerTool
 
         private void RefreshMetadata()
         {
-            var entitiesReq = new RetrieveAllEntitiesRequest() { EntityFilters = EntityFilters.Entity | EntityFilters.Attributes };
+            var entitiesReq = new RetrieveMetadataChangesRequest
+            {
+                Query = new EntityQueryExpression
+                {
+                    Properties = new MetadataPropertiesExpression
+                    {
+                        PropertyNames =
+                        {
+                            nameof(EntityMetadata.LogicalName),
+                            nameof(EntityMetadata.DisplayName),
+                            nameof(EntityMetadata.Attributes)
+                        }
+                    },
+                    AttributeQuery = new AttributeQueryExpression
+                    {
+                        Properties = new MetadataPropertiesExpression
+                        {
+                            PropertyNames =
+                            {
+                                nameof(AttributeMetadata.LogicalName),
+                                nameof(AttributeMetadata.DisplayName),
+                                nameof(AttributeMetadata.AttributeType),
+                                nameof(StringAttributeMetadata.FormatName)
+                            }
+                        },
+                        Criteria = new MetadataFilterExpression
+                        {
+                            Conditions =
+                            {
+                                new MetadataConditionExpression(nameof(AttributeMetadata.AttributeType), MetadataConditionOperator.Equals, AttributeTypeCode.String)
+                            }
+                        }
+                    }
+                }
+            };
+            
             WorkAsync(new WorkAsyncInfo
             {
                 Message = "Getting table metadata",
                 Work = (worker, args) =>
                 {
-                    args.Result = (RetrieveAllEntitiesResponse)Service.Execute(entitiesReq);
+                    if (ConnectionDetail.MetadataCacheLoader != null)
+                    {
+                        try
+                        {
+                            var metadataCache = ConnectionDetail.MetadataCacheLoader.ConfigureAwait(false).GetAwaiter().GetResult();
+                            args.Result = metadataCache.EntityMetadata;
+                            return;
+                        }
+                        catch
+                        {
+                            // Ignore errors loading the metadata cache and carry on loading the metadata ourselves
+                        }
+                    }
+
+                    args.Result = ((RetrieveMetadataChangesResponse) Service.Execute(entitiesReq)).EntityMetadata.ToArray();
                 },
                 PostWorkCallBack = (args) =>
                 {
                     if (args.Error != null)
                     {
                         MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
                     }
-                    var result = args.Result as RetrieveAllEntitiesResponse;
-                    entityMetadata = result.EntityMetadata;
+
+                    entityMetadata = args.Result as EntityMetadata[];
 
                     tableSelectionComboBox.Items.Clear();
                     tableSelectionComboBox.Items.AddRange(entityMetadata
