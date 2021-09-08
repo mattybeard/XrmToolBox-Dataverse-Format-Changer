@@ -48,7 +48,9 @@ namespace DataverseFormatChangerTool.Modals
             "Email",
             "Url",
             "Tickersymbol",
-            "Phone"});
+            "Phone",
+            "Json",
+            "Richtext"});
             this.formatTypeChoice.Location = new System.Drawing.Point(12, 48);
             this.formatTypeChoice.Name = "formatTypeChoice";
             this.formatTypeChoice.Size = new System.Drawing.Size(231, 21);

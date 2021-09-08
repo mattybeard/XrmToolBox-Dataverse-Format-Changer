@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -130,17 +131,6 @@ namespace DataverseFormatChangerTool
         }
 
         /// <summary>
-        /// This event occurs when the plugin is closed
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MyPluginControl_OnCloseTool(object sender, EventArgs e)
-        {
-            // Before leaving, save the settings
-            SettingsManager.Instance.Save(GetType(), mySettings);
-        }
-
-        /// <summary>
         /// This event occurs when the connection has been updated in XrmToolBox
         /// </summary>
         public override void UpdateConnection(IOrganizationService newService, ConnectionDetail detail, string actionName, object parameter)
@@ -183,27 +173,28 @@ namespace DataverseFormatChangerTool
                     });
                 }
 
-                /*
+                
                 if (column.AttributeType == AttributeTypeCode.Memo)
                 {
-                    var metadata = column as StringAttributeMetadata;
-                    //if (metadata.FormatName.Value == "VersionNumber" || metadata.FormatName.Value == "PhoneticGuide")
-                    //    continue;
+                    var metadata = column as MemoAttributeMetadata;
+                    if (metadata.FormatName.Value.ToLower() == "emailbody" || metadata.FormatName.Value.ToLower() == "internalextentdata")
+                        continue;
 
                     columnData.Add(new ColumnMetadataGridViewItem()
                     {
                         LogicalName = column.LogicalName,
                         DisplayName = column.DisplayName.UserLocalizedLabel.Label,
                         ColumnType = metadata.FormatName.Value,
-                        StringMetadata = metadata,
+                        MemoMetadata = metadata,
                     });
-                }
-                */
+                }                
             }
 
             columnGridData = columnData.OrderBy(a => a.DisplayName).ToArray();
             columnDataGridView.DataSource = columnGridData;
             columnDataGridView.Columns["StringMetadata"].Visible = false;
+            columnDataGridView.Columns["MemoMetadata"].Visible = false;
+            columnDataGridView.Columns["Metadata"].Visible = false;
         }
 
         private void columnDataGridView_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -224,17 +215,40 @@ namespace DataverseFormatChangerTool
 
         private void processButton_Click(object sender, EventArgs e)
         {
+            var completedRequests = 0;
             foreach (var request in changeRequests)
             {
-                var updateRequest = new UpdateAttributeRequest()
+                WorkAsync(new WorkAsyncInfo
                 {
-                    EntityName = "account",
-                    Attribute = request.TargetMetadata
-                };
+                    Message = "Processing requests...",
+                    Work = (worker, args) =>
+                    {
+                        var updateRequest = new UpdateAttributeRequest()
+                        {
+                            EntityName = "account",
+                            Attribute = request.TargetMetadata
+                        };
+                        
+                        args.Result = (UpdateAttributeResponse)Service.Execute(updateRequest);
+                      
+                    },
+                    PostWorkCallBack = (args) =>
+                    {
+                        if (args.Error != null)
+                        {
+                            MessageBox.Show(args.Error.Message.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                        completedRequests++;
 
-                // Execute the request
-                var resp = (UpdateAttributeResponse)Service.Execute(updateRequest);
-                MessageBox.Show(resp.ToString());
+                        if (completedRequests == changeRequests.Count)
+                        {
+                            MessageBox.Show("All Requests Processed");
+                            changeRequests = new List<FormatTypeChangeRequest>();
+                            currentQueuedRequests.Lines = new string[0];
+                            RefreshMetadata();
+                        }
+                    }
+                });
             }
         }
     }

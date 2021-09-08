@@ -15,5 +15,18 @@ namespace DataverseFormatChangerTool.Models
         public string ColumnType { get; set; }
         public StringAttributeMetadata StringMetadata { get; internal set; }
         public MemoAttributeMetadata MemoMetadata { get; internal set; }
+        public AttributeMetadata Metadata
+        {
+            get
+            {
+                if (StringMetadata != null)
+                    return StringMetadata;
+
+                if (MemoMetadata != null)
+                    return MemoMetadata;
+
+                return null;
+            }
+        }
     }
 }

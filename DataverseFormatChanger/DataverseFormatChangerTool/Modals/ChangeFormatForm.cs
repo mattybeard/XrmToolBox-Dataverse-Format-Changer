@@ -23,6 +23,26 @@ namespace DataverseFormatChangerTool.Modals
 
             this.Text = $"Changing type for {this.Row.DisplayName}";
             this.currentLabel.Text = $"Current datatype: {this.Row.ColumnType}";
+
+            this.formatTypeChoice.Items.Clear();
+            if (Row.StringMetadata != null)
+            {
+                this.formatTypeChoice.Items.Add("Text");
+                this.formatTypeChoice.Items.Add("Textarea");
+                this.formatTypeChoice.Items.Add("Email");
+                this.formatTypeChoice.Items.Add("Url");
+                this.formatTypeChoice.Items.Add("Tickersymbol");
+                this.formatTypeChoice.Items.Add("Phone");
+                this.formatTypeChoice.Items.Add("Json");
+                this.formatTypeChoice.Items.Add("Richtext");
+                this.formatTypeChoice.Items.Add("int");
+            } else if (Row.MemoMetadata != null)
+            {
+                this.formatTypeChoice.Items.Add("Text");
+                this.formatTypeChoice.Items.Add("Textarea");
+                this.formatTypeChoice.Items.Add("Json");
+                this.formatTypeChoice.Items.Add("Richtext)");
+            }
         }
 
         private void okayButton_Click(object sender, EventArgs e)
@@ -38,7 +58,7 @@ namespace DataverseFormatChangerTool.Modals
                     LogicalName = Row.LogicalName,
                     SourceFormat = Row.ColumnType,
                     TargetFormat = (string)formatTypeChoice.SelectedItem,
-                    TargetMetadata = updatedMetadata
+                    TargetMetadata = Row.Metadata
                 });
             }
         }
