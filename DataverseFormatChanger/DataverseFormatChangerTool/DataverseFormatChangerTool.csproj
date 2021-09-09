@@ -233,12 +233,6 @@
     <Compile Include="DataverseFormatChangerToolPluginControl.designer.cs">
       <DependentUpon>DataverseFormatChangerToolPluginControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Modals\ChangeFormatForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Modals\ChangeFormatForm.Designer.cs">
-      <DependentUpon>ChangeFormatForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Models\ColumnMetadataGridViewItem.cs" />
     <Compile Include="Models\FormatTypeChangeRequest.cs" />
     <Compile Include="Models\TableMetadataComboItem.cs" />
@@ -252,9 +246,6 @@
   <ItemGroup>
     <EmbeddedResource Include="DataverseFormatChangerToolPluginControl.resx">
       <DependentUpon>DataverseFormatChangerToolPluginControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Modals\ChangeFormatForm.resx">
-      <DependentUpon>ChangeFormatForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
