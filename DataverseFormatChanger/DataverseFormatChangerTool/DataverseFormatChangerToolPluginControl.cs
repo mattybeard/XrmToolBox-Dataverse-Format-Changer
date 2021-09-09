@@ -1,5 +1,4 @@
-﻿using DataverseFormatChangerTool.Modals;
-using DataverseFormatChangerTool.Models;
+﻿using DataverseFormatChangerTool.Models;
 using McTools.Xrm.Connection;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
@@ -12,6 +11,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,12 +26,38 @@ namespace DataverseFormatChangerTool
         private EntityMetadata[] entityMetadata;
         private ColumnMetadataGridViewItem[] columnGridData;
         private List<FormatTypeChangeRequest> changeRequests;
+        private List<string> stringFormats;
+        private List<string> memoFormats;
 
         public DataverseFormatChangerToolPluginControl()
         {
             InitializeComponent();
             tableSelectionComboBox.DisplayMember = "DisplayName";
-            changeRequests = new List<FormatTypeChangeRequest>();            
+
+            // Bind the columns, don't generate extra ones when we do the data binding
+            logicalNameColumn.DataPropertyName = nameof(ColumnMetadataGridViewItem.LogicalName);
+            displayNameColumn.DataPropertyName = nameof(ColumnMetadataGridViewItem.DisplayName);
+            formatColumn.DataPropertyName = nameof(ColumnMetadataGridViewItem.ColumnType);
+            columnDataGridView.AutoGenerateColumns = false;
+            changeRequests = new List<FormatTypeChangeRequest>();
+
+            // Add all possible format names to the combo column
+            stringFormats = new List<string>();
+            foreach (var stringFormatField in typeof(StringFormatName).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField).Where(f => f.FieldType == typeof(StringFormatName)))
+            {
+                var format = (StringFormatName)stringFormatField.GetValue(null);
+                stringFormats.Add(format.Value);
+            }
+
+            memoFormats = new List<string>();
+            foreach (var memoFormatField in typeof(MemoFormatName).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField).Where(f => f.FieldType == typeof(MemoFormatName)))
+            {
+                var format = (MemoFormatName)memoFormatField.GetValue(null);
+                memoFormats.Add(format.Value);
+            }
+
+            foreach (var format in stringFormats.Union(memoFormats))
+                formatColumn.Items.Add(format);
         }
 
         private void MyPluginControl_Load(object sender, EventArgs e)
@@ -49,10 +75,10 @@ namespace DataverseFormatChangerTool
                 LogInfo("Settings found and loaded");
             }
 
-            RefreshMetadata();
+            RefreshMetadata(true);
         }
 
-        private void RefreshMetadata()
+        private void RefreshMetadata(bool first)
         {
             var entitiesReq = new RetrieveMetadataChangesRequest
             {
@@ -99,6 +125,9 @@ namespace DataverseFormatChangerTool
                     {
                         try
                         {
+                            if (!first)
+                                ConnectionDetail.UpdateMetadataCache(false).ConfigureAwait(false).GetAwaiter().GetResult();
+
                             var metadataCache = ConnectionDetail.MetadataCacheLoader.ConfigureAwait(false).GetAwaiter().GetResult();
                             args.Result = metadataCache.EntityMetadata;
                             return;
@@ -126,6 +155,8 @@ namespace DataverseFormatChangerTool
                         .Select(m => new TableMetadataComboItem() { Metadata = m })
                         .Where(a => !String.IsNullOrEmpty(a.DisplayName))
                         .ToArray());
+
+                    columnDataGridView.DataSource = null;
                 }
             });
         }
@@ -173,7 +204,6 @@ namespace DataverseFormatChangerTool
                     });
                 }
 
-                
                 if (column.AttributeType == AttributeTypeCode.Memo)
                 {
                     var metadata = column as MemoAttributeMetadata;
@@ -192,29 +222,16 @@ namespace DataverseFormatChangerTool
 
             columnGridData = columnData.OrderBy(a => a.DisplayName).ToArray();
             columnDataGridView.DataSource = columnGridData;
-            columnDataGridView.Columns["StringMetadata"].Visible = false;
-            columnDataGridView.Columns["MemoMetadata"].Visible = false;
-            columnDataGridView.Columns["Metadata"].Visible = false;
-        }
-
-        private void columnDataGridView_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex == -1 || e.ColumnIndex == -1)
-                return;
-
-            var row = columnDataGridView.Rows[e.RowIndex].DataBoundItem as ColumnMetadataGridViewItem;
-
-            using (var changeFormatForm = new ChangeFormatForm(changeRequests, row))
-            {
-                if (changeFormatForm.ShowDialog(this) == DialogResult.OK)
-                {
-                    currentQueuedRequests.Lines = changeRequests.Select(c => c.DisplayRequest()).ToArray();
-                }
-            }
         }
 
         private void processButton_Click(object sender, EventArgs e)
         {
+            if (changeRequests.Count == 0)
+            {
+                MessageBox.Show("No pending changes. Make any changes to the required formats in the grid view first.", "No Pending Changes", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             var completedRequests = 0;
             foreach (var request in changeRequests)
             {
@@ -223,14 +240,22 @@ namespace DataverseFormatChangerTool
                     Message = "Processing requests...",
                     Work = (worker, args) =>
                     {
+                        AttributeMetadata updatedAttribute;
+
+                        if (request.TargetMetadata is StringAttributeMetadata)
+                            updatedAttribute = new StringAttributeMetadata { FormatName = request.TargetFormat };
+                        else
+                            updatedAttribute = new MemoAttributeMetadata { FormatName = request.TargetFormat };
+
+                        updatedAttribute.LogicalName = request.TargetMetadata.LogicalName;
+
                         var updateRequest = new UpdateAttributeRequest()
                         {
-                            EntityName = "account",
-                            Attribute = request.TargetMetadata
+                            EntityName = request.TargetMetadata.EntityLogicalName,
+                            Attribute = updatedAttribute
                         };
                         
                         args.Result = (UpdateAttributeResponse)Service.Execute(updateRequest);
-                      
                     },
                     PostWorkCallBack = (args) =>
                     {
@@ -242,14 +267,64 @@ namespace DataverseFormatChangerTool
 
                         if (completedRequests == changeRequests.Count)
                         {
-                            MessageBox.Show("All Requests Processed");
+                            MessageBox.Show("All Requests Processed", "Format Changes Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             changeRequests = new List<FormatTypeChangeRequest>();
                             currentQueuedRequests.Lines = new string[0];
-                            RefreshMetadata();
+                            RefreshMetadata(false);
                         }
                     }
                 });
             }
+        }
+
+        private void columnDataGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex != formatColumn.Index)
+                return;
+
+            if (e.RowIndex < 0 || e.RowIndex >= columnDataGridView.RowCount)
+                return;
+
+            var item = (ColumnMetadataGridViewItem)columnDataGridView.Rows[e.RowIndex].DataBoundItem;
+            var combo = (DataGridViewComboBoxCell)columnDataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex];
+
+            var itemCount = combo.Items.Count;
+
+            if (item.StringMetadata != null)
+                combo.Items.AddRange(stringFormats.ToArray());
+            else if (item.MemoMetadata != null)
+                combo.Items.AddRange(memoFormats.ToArray());
+
+            while (itemCount > 0)
+            {
+                combo.Items.RemoveAt(itemCount - 1);
+                itemCount--;
+            }
+        }
+
+        private void columnDataGridView_CellValidated(object sender, DataGridViewCellEventArgs e)
+        {
+            var item = (ColumnMetadataGridViewItem)columnDataGridView.Rows[e.RowIndex].DataBoundItem;
+            var newValue = item.ColumnType;
+            var originalValue = item.StringMetadata?.FormatName?.Value ?? item.MemoMetadata?.FormatName?.Value;
+
+            // Remove any previous change for this attribute
+            changeRequests.RemoveAll(change => change.MetadataId == item.Metadata.MetadataId.Value);
+
+            if (newValue != originalValue)
+            {
+                // Add the new change
+                changeRequests.Add(new FormatTypeChangeRequest
+                {
+                    MetadataId = item.Metadata.MetadataId.Value,
+                    SourceFormat = originalValue,
+                    TargetFormat = newValue,
+                    TargetMetadata = item.Metadata
+                });
+            }
+
+            // Update the change log
+            currentQueuedRequests.Lines = changeRequests.Select(c => c.DisplayRequest()).ToArray();
         }
     }
 }

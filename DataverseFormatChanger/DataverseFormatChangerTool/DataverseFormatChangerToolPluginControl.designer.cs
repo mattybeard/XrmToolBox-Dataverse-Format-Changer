@@ -34,6 +34,9 @@ namespace DataverseFormatChangerTool
             this.loadTableMetadataGroup = new System.Windows.Forms.GroupBox();
             this.loadColumnMetadataGroup = new System.Windows.Forms.GroupBox();
             this.columnDataGridView = new System.Windows.Forms.DataGridView();
+            this.logicalNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.displayNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.formatColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.queuedRequestsGroup = new System.Windows.Forms.GroupBox();
             this.currentQueuedRequests = new System.Windows.Forms.RichTextBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -52,6 +55,7 @@ namespace DataverseFormatChangerTool
             // tableSelectionComboBox
             // 
             this.tableSelectionComboBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableSelectionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.tableSelectionComboBox.FormattingEnabled = true;
             this.tableSelectionComboBox.Location = new System.Drawing.Point(8, 21);
             this.tableSelectionComboBox.Name = "tableSelectionComboBox";
@@ -85,13 +89,41 @@ namespace DataverseFormatChangerTool
             // 
             // columnDataGridView
             // 
+            this.columnDataGridView.AllowUserToAddRows = false;
+            this.columnDataGridView.AllowUserToDeleteRows = false;
+            this.columnDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.columnDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.columnDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.logicalNameColumn,
+            this.displayNameColumn,
+            this.formatColumn});
             this.columnDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.columnDataGridView.Location = new System.Drawing.Point(8, 21);
             this.columnDataGridView.Name = "columnDataGridView";
             this.columnDataGridView.Size = new System.Drawing.Size(728, 483);
             this.columnDataGridView.TabIndex = 0;
-            this.columnDataGridView.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.columnDataGridView_CellDoubleClick);
+            this.columnDataGridView.CellValidated += new System.Windows.Forms.DataGridViewCellEventHandler(this.columnDataGridView_CellValidated);
+            this.columnDataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.columnDataGridView_CellValueChanged);
+            // 
+            // logicalNameColumn
+            // 
+            this.logicalNameColumn.HeaderText = "Logical Name";
+            this.logicalNameColumn.Name = "logicalNameColumn";
+            this.logicalNameColumn.ReadOnly = true;
+            this.logicalNameColumn.Width = 97;
+            // 
+            // displayNameColumn
+            // 
+            this.displayNameColumn.HeaderText = "Display Name";
+            this.displayNameColumn.Name = "displayNameColumn";
+            this.displayNameColumn.ReadOnly = true;
+            this.displayNameColumn.Width = 97;
+            // 
+            // formatColumn
+            // 
+            this.formatColumn.HeaderText = "Format";
+            this.formatColumn.Name = "formatColumn";
+            this.formatColumn.Width = 45;
             // 
             // queuedRequestsGroup
             // 
@@ -180,5 +212,8 @@ namespace DataverseFormatChangerTool
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.Button processButton;
         private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn logicalNameColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn displayNameColumn;
+        private System.Windows.Forms.DataGridViewComboBoxColumn formatColumn;
     }
 }
