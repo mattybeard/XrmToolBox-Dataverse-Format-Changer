@@ -62,9 +62,6 @@ namespace DataverseFormatChangerTool
 
         private void MyPluginControl_Load(object sender, EventArgs e)
         {
-            // ShowInfoNotification("This is a notification that can lead to XrmToolBox repository", new Uri("https://github.com/MscrmTools/XrmToolBox"));
-
-            // Loads or creates the settings for the plugin
             if (!SettingsManager.Instance.TryLoad(GetType(), out mySettings))
             {
                 mySettings = new Settings();
@@ -222,6 +219,24 @@ namespace DataverseFormatChangerTool
 
             columnGridData = columnData.OrderBy(a => a.DisplayName).ToArray();
             columnDataGridView.DataSource = columnGridData;
+            
+            foreach (DataGridViewRow row in columnDataGridView.Rows)
+            {
+                var item = (ColumnMetadataGridViewItem)columnDataGridView.Rows[row.Index].DataBoundItem;
+                var combo = (DataGridViewComboBoxCell)columnDataGridView.Rows[row.Index].Cells[formatColumn.Index];
+                var itemCount = combo.Items.Count;
+
+                if (item.StringMetadata != null)
+                    combo.Items.AddRange(stringFormats.ToArray());
+                else if (item.MemoMetadata != null)
+                    combo.Items.AddRange(memoFormats.ToArray());
+
+                while (itemCount > 0)
+                {
+                    combo.Items.RemoveAt(itemCount - 1);
+                    itemCount--;
+                }
+            }
         }
 
         private void processButton_Click(object sender, EventArgs e)
