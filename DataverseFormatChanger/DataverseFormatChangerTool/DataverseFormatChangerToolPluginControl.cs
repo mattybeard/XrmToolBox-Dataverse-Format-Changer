@@ -60,7 +60,7 @@ namespace DataverseFormatChangerTool
                 formatColumn.Items.Add(format);
         }
 
-        private void MyPluginControl_Load(object sender, EventArgs e)
+        private void PluginControl_Load(object sender, EventArgs e)
         {
             if (!SettingsManager.Instance.TryLoad(GetType(), out mySettings))
             {
@@ -194,8 +194,6 @@ namespace DataverseFormatChangerTool
 
                     columnData.Add(new ColumnMetadataGridViewItem()
                     {
-                        LogicalName = column.LogicalName,
-                        DisplayName = column.DisplayName.UserLocalizedLabel.Label,
                         ColumnType = metadata.FormatName.Value,
                         StringMetadata = metadata,
                     });
@@ -209,8 +207,6 @@ namespace DataverseFormatChangerTool
 
                     columnData.Add(new ColumnMetadataGridViewItem()
                     {
-                        LogicalName = column.LogicalName,
-                        DisplayName = column.DisplayName.UserLocalizedLabel.Label,
                         ColumnType = metadata.FormatName.Value,
                         MemoMetadata = metadata,
                     });

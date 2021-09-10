@@ -189,7 +189,7 @@ namespace DataverseFormatChangerTool
             this.Controls.Add(this.splitContainer1);
             this.Name = "DataverseFormatChangerToolPluginControl";
             this.Size = new System.Drawing.Size(1243, 563);
-            this.Load += new System.EventHandler(this.MyPluginControl_Load);
+            this.Load += new System.EventHandler(this.PluginControl_Load);
             this.loadTableMetadataGroup.ResumeLayout(false);
             this.loadColumnMetadataGroup.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.columnDataGridView)).EndInit();

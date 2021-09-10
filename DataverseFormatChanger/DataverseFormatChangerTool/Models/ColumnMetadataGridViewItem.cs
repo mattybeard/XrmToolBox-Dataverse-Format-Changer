@@ -10,8 +10,26 @@ namespace DataverseFormatChangerTool.Models
     public class ColumnMetadataGridViewItem
     {
         // TODO: make this read off the metadata field
-        public string LogicalName { get; set; }
-        public string DisplayName { get; set; }
+        public string LogicalName
+        { 
+            get 
+            {
+                if (Metadata == null)
+                    return null;
+
+                return Metadata.LogicalName;
+            }
+        }
+        public string DisplayName
+        {
+            get 
+            {
+                if (Metadata == null)
+                    return null;
+
+                return Metadata.DisplayName.UserLocalizedLabel.Label;
+            }
+        }
         public string ColumnType { get; set; }
         public StringAttributeMetadata StringMetadata { get; internal set; }
         public MemoAttributeMetadata MemoMetadata { get; internal set; }
