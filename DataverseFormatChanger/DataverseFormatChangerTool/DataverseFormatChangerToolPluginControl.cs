@@ -1,4 +1,5 @@
-﻿using DataverseFormatChangerTool.Models;
+﻿using DataverseFormatChangerTool.Modals;
+using DataverseFormatChangerTool.Models;
 using McTools.Xrm.Connection;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
@@ -115,13 +116,19 @@ namespace DataverseFormatChangerTool
             
             WorkAsync(new WorkAsyncInfo
             {
-                Message = "Getting table metadata",
+                Message = $"Getting table metadata via {(mySettings.DisableMetadataCache ? "metadata request" : "cache")}",
                 Work = (worker, args) =>
                 {
-                    if (ConnectionDetail.MetadataCacheLoader != null)
+                    if (ConnectionDetail.MetadataCacheLoader != null && !mySettings.DisableMetadataCache)
                     {
                         try
                         {
+                            if (first || mySettings.ForceFlushCache)
+                            {
+                                ConnectionDetail.UpdateMetadataCache(true).ConfigureAwait(false).GetAwaiter().GetResult();
+                                mySettings.ForceFlushCache = false;
+                            }
+
                             if (!first)
                                 ConnectionDetail.UpdateMetadataCache(false).ConfigureAwait(false).GetAwaiter().GetResult();
 
@@ -169,6 +176,7 @@ namespace DataverseFormatChangerTool
             {
                 mySettings.LastUsedOrganizationWebappUrl = detail.WebApplicationUrl;
                 LogInfo("Connection has changed to: {0}", detail.WebApplicationUrl);
+                RefreshMetadata(true);
             }
         }
 
@@ -179,17 +187,20 @@ namespace DataverseFormatChangerTool
         /// <param name="e"></param>
         private void tableSelectionComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (tableSelectionComboBox.SelectedItem == null)
+                return;
+
             var selectedTable = (TableMetadataComboItem)tableSelectionComboBox.SelectedItem;
             var columnData = new List<ColumnMetadataGridViewItem>();
             foreach (var column in selectedTable.Metadata.Attributes)
             {
-                if (column.DisplayName.UserLocalizedLabel == null)
+                if (column.DisplayName == null || column.DisplayName.UserLocalizedLabel == null)
                     continue;
 
                 if (column.AttributeType == AttributeTypeCode.String)
                 {
                     var metadata = column as StringAttributeMetadata;
-                    if (metadata.FormatName.Value == "VersionNumber" || metadata.FormatName.Value == "PhoneticGuide")
+                    if (metadata.FormatName == null || metadata.FormatName.Value == "VersionNumber" || metadata.FormatName.Value == "PhoneticGuide")
                         continue;
 
                     columnData.Add(new ColumnMetadataGridViewItem()
@@ -202,7 +213,7 @@ namespace DataverseFormatChangerTool
                 if (column.AttributeType == AttributeTypeCode.Memo)
                 {
                     var metadata = column as MemoAttributeMetadata;
-                    if (metadata.FormatName.Value.ToLower() == "emailbody" || metadata.FormatName.Value.ToLower() == "internalextentdata")
+                    if (metadata.FormatName == null || metadata.FormatName.Value.ToLower() == "emailbody" || metadata.FormatName.Value.ToLower() == "internalextentdata")
                         continue;
 
                     columnData.Add(new ColumnMetadataGridViewItem()
@@ -336,6 +347,14 @@ namespace DataverseFormatChangerTool
 
             // Update the change log
             currentQueuedRequests.Lines = changeRequests.Select(c => c.DisplayRequest()).ToArray();
+        }
+
+        private void settingsButton_Click(object sender, EventArgs e)
+        {
+            var settingsForm = new SettingsForm(mySettings);
+            var result = settingsForm.ShowDialog();
+            if (result == DialogResult.OK)
+                RefreshMetadata(false);
         }
     }
 }
