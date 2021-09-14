@@ -15,5 +15,7 @@ namespace DataverseFormatChangerTool
     public class Settings
     {
         public string LastUsedOrganizationWebappUrl { get; set; }
+        public bool DisableMetadataCache { get; set; }
+        public bool ForceFlushCache { get; set; }
     }
 }

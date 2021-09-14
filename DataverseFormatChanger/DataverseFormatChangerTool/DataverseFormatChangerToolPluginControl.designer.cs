@@ -30,6 +30,10 @@ namespace DataverseFormatChangerTool
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DataverseFormatChangerToolPluginControl));
             this.tableSelectionComboBox = new System.Windows.Forms.ComboBox();
             this.loadTableMetadataGroup = new System.Windows.Forms.GroupBox();
             this.loadColumnMetadataGroup = new System.Windows.Forms.GroupBox();
@@ -42,6 +46,9 @@ namespace DataverseFormatChangerTool
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.processButton = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.settingsButton = new System.Windows.Forms.ToolStripButton();
             this.loadTableMetadataGroup.SuspendLayout();
             this.loadColumnMetadataGroup.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.columnDataGridView)).BeginInit();
@@ -50,6 +57,7 @@ namespace DataverseFormatChangerTool
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableSelectionComboBox
@@ -82,7 +90,7 @@ namespace DataverseFormatChangerTool
             this.loadColumnMetadataGroup.Location = new System.Drawing.Point(0, 51);
             this.loadColumnMetadataGroup.Name = "loadColumnMetadataGroup";
             this.loadColumnMetadataGroup.Padding = new System.Windows.Forms.Padding(8);
-            this.loadColumnMetadataGroup.Size = new System.Drawing.Size(744, 512);
+            this.loadColumnMetadataGroup.Size = new System.Drawing.Size(744, 522);
             this.loadColumnMetadataGroup.TabIndex = 7;
             this.loadColumnMetadataGroup.TabStop = false;
             this.loadColumnMetadataGroup.Text = "Columns";
@@ -92,15 +100,39 @@ namespace DataverseFormatChangerTool
             this.columnDataGridView.AllowUserToAddRows = false;
             this.columnDataGridView.AllowUserToDeleteRows = false;
             this.columnDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.columnDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.columnDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.columnDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.logicalNameColumn,
             this.displayNameColumn,
             this.formatColumn});
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.columnDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
             this.columnDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.columnDataGridView.Location = new System.Drawing.Point(8, 21);
             this.columnDataGridView.Name = "columnDataGridView";
-            this.columnDataGridView.Size = new System.Drawing.Size(728, 483);
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.columnDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            this.columnDataGridView.Size = new System.Drawing.Size(728, 493);
             this.columnDataGridView.TabIndex = 0;
             this.columnDataGridView.CellValidated += new System.Windows.Forms.DataGridViewCellEventHandler(this.columnDataGridView_CellValidated);
             this.columnDataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.columnDataGridView_CellValueChanged);
@@ -132,8 +164,8 @@ namespace DataverseFormatChangerTool
             this.queuedRequestsGroup.Location = new System.Drawing.Point(0, 0);
             this.queuedRequestsGroup.Name = "queuedRequestsGroup";
             this.queuedRequestsGroup.Padding = new System.Windows.Forms.Padding(8);
-            this.queuedRequestsGroup.Size = new System.Drawing.Size(495, 502);
-            this.queuedRequestsGroup.TabIndex = 8;
+            this.queuedRequestsGroup.Size = new System.Drawing.Size(495, 512);
+            this.queuedRequestsGroup.TabIndex = 9;
             this.queuedRequestsGroup.TabStop = false;
             this.queuedRequestsGroup.Text = "Pending Changes";
             // 
@@ -142,7 +174,8 @@ namespace DataverseFormatChangerTool
             this.currentQueuedRequests.Dock = System.Windows.Forms.DockStyle.Fill;
             this.currentQueuedRequests.Location = new System.Drawing.Point(8, 21);
             this.currentQueuedRequests.Name = "currentQueuedRequests";
-            this.currentQueuedRequests.Size = new System.Drawing.Size(479, 473);
+            this.currentQueuedRequests.ReadOnly = true;
+            this.currentQueuedRequests.Size = new System.Drawing.Size(479, 483);
             this.currentQueuedRequests.TabIndex = 0;
             this.currentQueuedRequests.Text = "";
             // 
@@ -154,7 +187,7 @@ namespace DataverseFormatChangerTool
             // processButton
             // 
             this.processButton.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.processButton.Location = new System.Drawing.Point(0, 502);
+            this.processButton.Location = new System.Drawing.Point(0, 512);
             this.processButton.Name = "processButton";
             this.processButton.Size = new System.Drawing.Size(495, 61);
             this.processButton.TabIndex = 10;
@@ -165,7 +198,7 @@ namespace DataverseFormatChangerTool
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Location = new System.Drawing.Point(0, 25);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -178,17 +211,39 @@ namespace DataverseFormatChangerTool
             // 
             this.splitContainer1.Panel2.Controls.Add(this.queuedRequestsGroup);
             this.splitContainer1.Panel2.Controls.Add(this.processButton);
-            this.splitContainer1.Size = new System.Drawing.Size(1243, 563);
+            this.splitContainer1.Size = new System.Drawing.Size(1243, 573);
             this.splitContainer1.SplitterDistance = 744;
             this.splitContainer1.TabIndex = 11;
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.settingsButton});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(1243, 25);
+            this.toolStrip1.TabIndex = 12;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // settingsButton
+            // 
+            this.settingsButton.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.settingsButton.Image = ((System.Drawing.Image)(resources.GetObject("settingsButton.Image")));
+            this.settingsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.settingsButton.Name = "settingsButton";
+            this.settingsButton.Size = new System.Drawing.Size(69, 22);
+            this.settingsButton.Text = "Settings";
+            this.settingsButton.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
+            this.settingsButton.Click += new System.EventHandler(this.settingsButton_Click);
             // 
             // DataverseFormatChangerToolPluginControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.splitContainer1);
+            this.Controls.Add(this.toolStrip1);
             this.Name = "DataverseFormatChangerToolPluginControl";
-            this.Size = new System.Drawing.Size(1243, 563);
+            this.Size = new System.Drawing.Size(1243, 598);
             this.Load += new System.EventHandler(this.PluginControl_Load);
             this.loadTableMetadataGroup.ResumeLayout(false);
             this.loadColumnMetadataGroup.ResumeLayout(false);
@@ -198,7 +253,10 @@ namespace DataverseFormatChangerTool
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -215,5 +273,8 @@ namespace DataverseFormatChangerTool
         private System.Windows.Forms.DataGridViewTextBoxColumn logicalNameColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn displayNameColumn;
         private System.Windows.Forms.DataGridViewComboBoxColumn formatColumn;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripButton settingsButton;
     }
 }
