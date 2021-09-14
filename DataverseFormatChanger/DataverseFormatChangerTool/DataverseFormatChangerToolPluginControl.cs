@@ -102,13 +102,6 @@ namespace DataverseFormatChangerTool
                                 nameof(AttributeMetadata.AttributeType),
                                 nameof(StringAttributeMetadata.FormatName)
                             }
-                        },
-                        Criteria = new MetadataFilterExpression
-                        {
-                            Conditions =
-                            {
-                                new MetadataConditionExpression(nameof(AttributeMetadata.AttributeType), MetadataConditionOperator.Equals, AttributeTypeCode.String)
-                            }
                         }
                     }
                 }
