@@ -1,6 +1,7 @@
 ﻿using DataverseFormatChangerTool.Modals;
 using DataverseFormatChangerTool.Models;
 using McTools.Xrm.Connection;
+using Microsoft.ApplicationInsights;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
@@ -18,17 +19,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using XrmToolBox.Extensibility;
+using XrmToolBox.Extensibility.Interfaces;
 
 namespace DataverseFormatChangerTool
 {
-    public partial class DataverseFormatChangerToolPluginControl : PluginControlBase
+    public partial class DataverseFormatChangerToolPluginControl : PluginControlBase, IGitHubPlugin
     {
+        private TelemetryClient ai;
         private Settings mySettings;
         private EntityMetadata[] entityMetadata;
         private ColumnMetadataGridViewItem[] columnGridData;
         private List<FormatTypeChangeRequest> changeRequests;
         private List<string> stringFormats;
         private List<string> memoFormats;
+
+        public string RepositoryName => "XrmToolBox_DataverseFormatChanger";
+        public string UserName => "mattybeard"; 
+        
+        private const string aiKey = "78f8d71c-f87a-4648-b9bc-5cbccda57934";
 
         public DataverseFormatChangerToolPluginControl()
         {
@@ -59,6 +67,9 @@ namespace DataverseFormatChangerTool
 
             foreach (var format in stringFormats.Union(memoFormats))
                 formatColumn.Items.Add(format);
+
+            ai = new TelemetryClient(new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration(aiKey));
+            ai.TrackEvent("Loaded");
         }
 
         private void PluginControl_Load(object sender, EventArgs e)
@@ -73,7 +84,8 @@ namespace DataverseFormatChangerTool
                 LogInfo("Settings found and loaded");
             }
 
-            RefreshMetadata(true);
+            if (Service != null)
+                RefreshMetadata(true);
         }
 
         private void RefreshMetadata(bool first)
@@ -112,8 +124,11 @@ namespace DataverseFormatChangerTool
                 Message = $"Getting table metadata via {(mySettings.DisableMetadataCache ? "metadata request" : "cache")}",
                 Work = (worker, args) =>
                 {
+                    ai.TrackEvent("MetadataLoad");
                     if (ConnectionDetail.MetadataCacheLoader != null && !mySettings.DisableMetadataCache)
                     {
+                        ai.TrackEvent("MetadataLoadViaCache");
+
                         try
                         {
                             if (first || mySettings.ForceFlushCache)
@@ -135,12 +150,14 @@ namespace DataverseFormatChangerTool
                         }
                     }
 
+                    ai.TrackEvent("MetadataLoadViaRequest");
                     args.Result = ((RetrieveMetadataChangesResponse) Service.Execute(entitiesReq)).EntityMetadata.ToArray();
                 },
                 PostWorkCallBack = (args) =>
                 {
                     if (args.Error != null)
                     {
+                        ai.TrackEvent("FailedRequest");
                         MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
@@ -248,6 +265,7 @@ namespace DataverseFormatChangerTool
             }
 
             var completedRequests = 0;
+            ai.TrackEvent("ProcessedRequests", null, new Dictionary<string, double> { ["RequestCount"] = changeRequests.Count });
             foreach (var request in changeRequests)
             {
                 WorkAsync(new WorkAsyncInfo
@@ -276,6 +294,7 @@ namespace DataverseFormatChangerTool
                     {
                         if (args.Error != null)
                         {
+                            ai.TrackException(args.Error);
                             MessageBox.Show(args.Error.Message.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                         completedRequests++;
